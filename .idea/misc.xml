@@ -5,6 +5,8 @@
       <map>
         <entry key="..\:/Users/DELL/FlutterP/DataCalculator/app/src/main/res/layout/activity_main.xml" value="0.25" />
         <entry key="..\:/Users/DELL/FlutterP/DataCalculator/app/src/main/res/layout/data_history_layout.xml" value="0.25" />
+        <entry key="..\:/Users/DELL/FlutterP/DataCalculator/app/src/main/res/layout/fragment_date_picker.xml" value="0.19114583333333332" />
+        <entry key="..\:/Users/DELL/FlutterP/DataCalculator/app/src/main/res/layout/fragment_time_picker.xml" value="0.209375" />
       </map>
     </option>
   </component>
