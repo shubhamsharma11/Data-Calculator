@@ -10,7 +10,7 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
-class MainActivityViewModel(private val context: Context) : ViewModel() {
+class MainActivityViewModel() : ViewModel() {
 
     val myDateFormat = MyDateFormat()
     var string = MutableLiveData<String>().apply {

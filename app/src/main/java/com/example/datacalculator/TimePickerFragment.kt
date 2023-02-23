@@ -22,8 +22,8 @@ class TimePickerFragment(val myDateFormat: MyDateFormat) : DialogFragment(), Tim
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val c = Calendar.getInstance()
-        var h = c.get(Calendar.HOUR)
-        var m = c.get(Calendar.MINUTE)
+        val h = c.get(Calendar.HOUR)
+        val m = c.get(Calendar.MINUTE)
         return TimePickerDialog(context,this, h,m, DateFormat.is24HourFormat(activity))
     }
 

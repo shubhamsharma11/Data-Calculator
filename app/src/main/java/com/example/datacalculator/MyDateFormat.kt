@@ -1,17 +1,15 @@
 package com.example.datacalculator
 
-import android.util.Log
 import java.text.SimpleDateFormat
 
 class MyDateFormat {
-    constructor()
 
-    var year:Int?= 0
-    var month:Int?= 0
-    var day:Int?= 0
-    var hour:Int?= 0
-    var minute:Int?= 0
-    var second:Int?= 0
+    private var year:Int?= 0
+    private var month:Int?= 0
+    private var day:Int?= 0
+    private var hour:Int?= 0
+    private var minute:Int?= 0
+    private var second:Int?= 0
 
 
     fun setYear(i:Int){
@@ -36,12 +34,11 @@ class MyDateFormat {
         return "$day-$month-$year $hour:$minute:$second"
     }
 
-    fun getDateMillis(): Long{
-        val date_string = "$day-$month-$year $hour:$minute:$second"
+    fun getDateMillis(): Long {
+        val dateString = "$day-$month-$year $hour:$minute:$second"
         val formatter = SimpleDateFormat("dd-MM-yyyy hh:mm:ss")
-        var newDate = formatter.parse(date_string)
-        val millis = newDate!!.time
-        return millis
+        val newDate = formatter.parse(dateString)
+        return newDate!!.time
     }
 
 }
