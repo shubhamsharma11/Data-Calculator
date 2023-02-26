@@ -15,12 +15,11 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-
+import java.util.*
 
 class MainActivity : AppCompatActivity(){
 
     var dataHistoryList: MutableList<DataHistoryModel>? = null
-
     var dataHistoryListAdapter : DataHistoryListAdapter? = null
 
     val permission : Button by lazy {
@@ -32,19 +31,15 @@ class MainActivity : AppCompatActivity(){
     val startTimeTV : TextView by lazy {
         findViewById(R.id.start_time_tv)
     }
-
     val endTimeTV : TextView by lazy {
         findViewById(R.id.end_time_tv)
     }
-
     val startTime : TextView by lazy {
         findViewById(R.id.start_time)
     }
-
     val endTime : TextView by lazy {
         findViewById(R.id.end_time)
     }
-
     val dataHistoryRecyclerView : RecyclerView by lazy {
         findViewById(R.id.data_history_recycler_view)
     }
@@ -60,79 +55,80 @@ class MainActivity : AppCompatActivity(){
         setContentView(R.layout.activity_main)
 
         dataHistoryList = mutableListOf()
-
         dataHistoryListAdapter = DataHistoryListAdapter(this, dataHistoryList!!)
-
-
         dataHistoryRecyclerView.layoutManager = LinearLayoutManager(this)
-
         dataHistoryRecyclerView.adapter = dataHistoryListAdapter
-
         startTimeTV.setOnClickListener(View.OnClickListener {
-            openTimePicker(myDateFormat)
-            openDatePicker(myDateFormat)
+            openDateTimePicker(myDateFormat, true)
         })
         endTimeTV.setOnClickListener(View.OnClickListener {
-            startTime.setText(myDateFormat.getDate())
-            startTimeInMillis = myDateFormat.getDateMillis()
-            openTimePicker(myDateFormat)
-            openDatePicker(myDateFormat)
+            openDateTimePicker(myDateFormat, false)
         })
-
         dataCalculator.setOnClickListener(View.OnClickListener {
-            endTime.setText(myDateFormat.getDate())
-            endTimeInMillis = myDateFormat.getDateMillis()
             Log.i("start", startTimeInMillis.toString())
             Log.i("end", endTimeInMillis.toString())
-
             val networkStatsManager = this.getSystemService(Context.NETWORK_STATS_SERVICE) as NetworkStatsManager
             val startTime = startTimeInMillis // start time in milliseconds
             val endTime = endTimeInMillis // end time in milliseconds
             val networkType = ConnectivityManager.TYPE_MOBILE // network type (e.g. TYPE_MOBILE or TYPE_WIFI)
-
             val networkStats = networkStatsManager.querySummary(networkType, null, startTime, endTime)
             val bucket = NetworkStats.Bucket()
             var totalBytes: Long = if (networkStats.getNextBucket(bucket)) bucket.rxBytes + bucket.txBytes else 0
-
             while (networkStats.hasNextBucket())
             {
                 if (networkStats.getNextBucket(bucket))
                     totalBytes += bucket.rxBytes + bucket.txBytes
             }
-            Log.i("Total Bytes", totalBytes.toString())
-
+            Log.i("Mobile Data Usage Bytes", totalBytes.toString())
+            updateUI(totalBytes)
             totalBytes = TrafficStats.getTotalRxBytes() + TrafficStats.getTotalTxBytes()
-            Log.i("Total Bytes", totalBytes.toString())
+            Log.i("Total Data Usage Bytes (Mobile + Wifi)", totalBytes.toString())
         })
-
         permission.setOnClickListener(View.OnClickListener {
             startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
         })
     }
 
-    fun openDatePicker(myDateFormat: MyDateFormat){
+    fun openDateTimePicker(myDateFormat: MyDateFormat, isStartTime: Boolean){
+        // Pick Time
+        timeFragment = TimePickerFragment(myDateFormat, isStartTime, ::timeIsSet)
+        timeFragment!!.show(supportFragmentManager, "Time Picker")
+        // Pick Date
         dateFragment = DatePickerFragment(myDateFormat)
         dateFragment!!.show(supportFragmentManager, "Date Picker")
     }
 
-    fun openTimePicker(myDateFormat: MyDateFormat){
-        timeFragment = TimePickerFragment(myDateFormat)
-        timeFragment!!.show(supportFragmentManager, "Time Picker")
+    fun timeIsSet(isStartTime: Boolean){
+        if(isStartTime) {
+            startTime.setText(myDateFormat.getDate())
+            startTimeInMillis = myDateFormat.getDateToMillis()
+        }
+        else
+        {
+            endTime.setText(myDateFormat.getDate())
+            endTimeInMillis = myDateFormat.getDateToMillis()
+        }
+    }
+
+    fun updateUI(data: Long) {
+        // Update the UI here
+        println("Result: $data")
+
+        val dataHistoryModel = DataHistoryModel(
+            myDateFormat.getMillisToDate(Calendar.getInstance().timeInMillis, "dd-MM-yyyy"),
+            myDateFormat.getMillisToDate(startTimeInMillis),
+            myDateFormat.getMillisToDate(endTimeInMillis),
+            data.toDouble(),
+            "%.2f".format(data / 1024.00).toDouble(),
+            "%.2f".format(data/(1024.00*1024.00)).toDouble(),
+            "%.2f".format(data/(1024.00*1024.00*1024)).toDouble()
+        )
+
+        dataHistoryList?.add(dataHistoryModel)
+        dataHistoryListAdapter?.notifyDataSetChanged()
     }
 
     /**
-     * fun hoursToMili(hours: Int): Long{
-    return (hours * 60 * 60 * 1000).toLong()
-    }
-
-    fun minutesToMili(minutes: Int): Long{
-    return (minutes * 60 * 1000).toLong()
-    }
-
-    fun secondsToMili(seconds: Int): Long{
-    return (seconds * 1000).toLong()
-    }
-
     fun updateUI(data: Int, h: Int, m:Int, s:Int) {
     // Update the UI here
     println("Result: $data")

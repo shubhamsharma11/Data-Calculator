@@ -11,15 +11,12 @@ class MyDateFormat {
     private var minute:Int?= 0
     private var second:Int?= 0
 
-
     fun setYear(i:Int){
         year = i
     }
-
     fun setMonth(i:Int){
         month = i
     }
-
     fun setDay(i:Int){
         day = i
     }
@@ -29,16 +26,19 @@ class MyDateFormat {
     fun setMinutes(i:Int){
         minute = i
     }
-
     fun getDate(): String{
         return "$day-$month-$year $hour:$minute:$second"
     }
 
-    fun getDateMillis(): Long {
+    fun getDateToMillis(): Long {
         val dateString = "$day-$month-$year $hour:$minute:$second"
         val formatter = SimpleDateFormat("dd-MM-yyyy hh:mm:ss")
         val newDate = formatter.parse(dateString)
         return newDate!!.time
+    }
+    fun getMillisToDate(millis: Long, format: String = "dd-MM-yyyy hh:mm"): String {
+        val formatter = SimpleDateFormat(format)
+        return formatter.format(millis)
     }
 
 }
