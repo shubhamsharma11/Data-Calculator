@@ -82,6 +82,7 @@ class MainActivity : AppCompatActivity(){
                 Toast.makeText(this, "You have not provided the required permissions." +
                         "\nPlease provide the permission and continue", Toast.LENGTH_LONG)
                 startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
+                return@OnClickListener
             }
             val networkStatsManager = this.getSystemService(Context.NETWORK_STATS_SERVICE) as NetworkStatsManager
             val startTime = startTimeInMillis // start time in milliseconds
