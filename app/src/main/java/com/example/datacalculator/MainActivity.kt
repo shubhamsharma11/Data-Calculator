@@ -1,5 +1,6 @@
 package com.example.datacalculator
 
+import android.app.AppOpsManager
 import android.app.usage.NetworkStats
 import android.app.usage.NetworkStatsManager
 import android.content.Context
@@ -12,6 +13,7 @@ import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -54,6 +56,15 @@ class MainActivity : AppCompatActivity(){
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        if(!checkPermissionGranted())
+        {
+            // Permission not granted, handle accordingly
+            Toast.makeText(this, "You have not provided the required permissions." +
+                    "\nPlease provide the permission to continue", Toast.LENGTH_LONG)
+            // TODO: This Toast should be an alert / dialog
+            startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
+        }
+
         dataHistoryList = mutableListOf()
         dataHistoryListAdapter = DataHistoryListAdapter(this, dataHistoryList!!)
         dataHistoryRecyclerView.layoutManager = LinearLayoutManager(this)
@@ -65,8 +76,13 @@ class MainActivity : AppCompatActivity(){
             openDateTimePicker(myDateFormat, false)
         })
         dataCalculator.setOnClickListener(View.OnClickListener {
-            Log.i("start", startTimeInMillis.toString())
-            Log.i("end", endTimeInMillis.toString())
+
+            if (!checkPermissionGranted()) {
+                // Permission not granted, handle accordingly
+                Toast.makeText(this, "You have not provided the required permissions." +
+                        "\nPlease provide the permission and continue", Toast.LENGTH_LONG)
+                startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
+            }
             val networkStatsManager = this.getSystemService(Context.NETWORK_STATS_SERVICE) as NetworkStatsManager
             val startTime = startTimeInMillis // start time in milliseconds
             val endTime = endTimeInMillis // end time in milliseconds
@@ -128,6 +144,16 @@ class MainActivity : AppCompatActivity(){
         dataHistoryListAdapter?.notifyDataSetChanged()
     }
 
+    fun checkPermissionGranted(): Boolean {
+
+        val appOpsManager = getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
+        val mode = appOpsManager.checkOpNoThrow(
+            AppOpsManager.OPSTR_GET_USAGE_STATS,
+            android.os.Process.myUid(),
+            packageName
+        )
+        return (mode == AppOpsManager.MODE_ALLOWED)
+    }
     /**
     fun updateUI(data: Int, h: Int, m:Int, s:Int) {
     // Update the UI here
